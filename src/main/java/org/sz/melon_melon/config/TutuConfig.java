@@ -46,6 +46,11 @@ public class TutuConfig {
             "create:large_cogwheel"
     );
     private static List<String> forceBlockModel = List.of("minecraft:stone");
+    private static boolean randomHarvestCount = true;
+    private static int harvestCount1Weight = 58;
+    private static int harvestCount2Weight = 30;
+    private static int harvestCount3Weight = 10;
+    private static int harvestCount4Weight = 2;
     private static boolean enableFeifei = true;
     private static double feifeiGrowthAmount = 0.25D;
     private static boolean feifeiConsumeInCreative = false;
@@ -82,6 +87,18 @@ public class TutuConfig {
             fallbackToItemRenderer = config.getOrElse("rendering.fallbackToItemRenderer", true);
             forceItemBillboard = new ArrayList<>(config.getOrElse("rendering.forceItemBillboard", forceItemBillboard));
             forceBlockModel = new ArrayList<>(config.getOrElse("rendering.forceBlockModel", forceBlockModel));
+            randomHarvestCount = config.getOrElse("harvest.randomHarvestCount", true);
+            harvestCount1Weight = Math.max(0, config.getOrElse("harvest.harvestCount1Weight", 58));
+            harvestCount2Weight = Math.max(0, config.getOrElse("harvest.harvestCount2Weight", 30));
+            harvestCount3Weight = Math.max(0, config.getOrElse("harvest.harvestCount3Weight", 10));
+            harvestCount4Weight = Math.max(0, config.getOrElse("harvest.harvestCount4Weight", 2));
+            if (harvestCount1Weight + harvestCount2Weight + harvestCount3Weight + harvestCount4Weight <= 0) {
+                Melon_melon.LOGGER.warn("Harvest count weights total 0 in {}; falling back to 58/30/10/2", CONFIG_PATH);
+                harvestCount1Weight = 58;
+                harvestCount2Weight = 30;
+                harvestCount3Weight = 10;
+                harvestCount4Weight = 2;
+            }
             enableFeifei = config.getOrElse("feifei.enableFeifei", bonemealAllowed);
             feifeiGrowthAmount = Math.max(0.0D, config.getOrElse("feifei.growthAmount", bonemealGrowthAmount));
             feifeiConsumeInCreative = config.getOrElse("feifei.consumeInCreative", false);
@@ -223,6 +240,26 @@ public class TutuConfig {
         return forceBlockModel;
     }
 
+    public static boolean randomHarvestCount() {
+        return randomHarvestCount;
+    }
+
+    public static int harvestCount1Weight() {
+        return harvestCount1Weight;
+    }
+
+    public static int harvestCount2Weight() {
+        return harvestCount2Weight;
+    }
+
+    public static int harvestCount3Weight() {
+        return harvestCount3Weight;
+    }
+
+    public static int harvestCount4Weight() {
+        return harvestCount4Weight;
+    }
+
     public static boolean enableFeifei() {
         return enableFeifei;
     }
@@ -267,6 +304,9 @@ public class TutuConfig {
             }
             if (!existingConfig.contains("[rendering]")) {
                 additions.append('\n').append(DEFAULT_RENDERING_CONFIG);
+            }
+            if (!existingConfig.contains("[harvest]")) {
+                additions.append('\n').append(DEFAULT_HARVEST_CONFIG);
             }
             if (!existingConfig.contains("[feifei]")) {
                 additions.append('\n').append(DEFAULT_FEIFEI_CONFIG);
@@ -402,6 +442,27 @@ public class TutuConfig {
               "minecraft:stone"
             ]
 
+            [harvest]
+            # CN: 右键成熟作物时是否使用随机掉落数量。
+            # EN: Whether right-click harvesting uses random output counts.
+            randomHarvestCount = true
+
+            # CN: 右键收获掉落 1 个产物的概率权重。默认分布为 58%。
+            # EN: Weight for dropping 1 item when right-click harvesting. Default distribution is 58%.
+            harvestCount1Weight = 58
+
+            # CN: 右键收获掉落 2 个产物的概率权重。默认分布为 30%。
+            # EN: Weight for dropping 2 items when right-click harvesting. Default distribution is 30%.
+            harvestCount2Weight = 30
+
+            # CN: 右键收获掉落 3 个产物的概率权重。默认分布为 10%。
+            # EN: Weight for dropping 3 items when right-click harvesting. Default distribution is 10%.
+            harvestCount3Weight = 10
+
+            # CN: 右键收获掉落 4 个产物的概率权重。默认分布为 2%。
+            # EN: Weight for dropping 4 items when right-click harvesting. Default distribution is 2%.
+            harvestCount4Weight = 2
+
             [feifei]
             # CN: 是否允许“？肥肥？”催熟土土上的种植物。
             # EN: Enables ?Feifei? to accelerate plants on Tutu Soil.
@@ -437,6 +498,8 @@ public class TutuConfig {
 
             # CN: 示例：机械动力阶段。请按整合包实际进度 id 修改 unlockId。
             # EN: Example Create stage. Adjust unlockId for your pack.
+            # CN: create:* 表示允许机械动力命名空间下的所有物品尝试种植。
+            # EN: create:* allows every item from the Create namespace to be planted.
             [[stages]]
             id = "create"
             displayName = "Create / 机械动力阶段"
@@ -444,9 +507,7 @@ public class TutuConfig {
             unlockType = "kubejs"
             unlockId = "create"
             items = [
-              "create:cogwheel",
-              "create:large_cogwheel",
-              "create:water_wheel"
+              "create:*"
             ]
 
             # CN: 示例：KubeJS / 命令控制阶段。可用 /tutu stage unlock <player> mekanism 解锁。
@@ -565,6 +626,29 @@ public class TutuConfig {
             forceBlockModel = [
               "minecraft:stone"
             ]
+            """;
+
+    private static final String DEFAULT_HARVEST_CONFIG = """
+            [harvest]
+            # CN: 右键成熟作物时是否使用随机掉落数量。
+            # EN: Whether right-click harvesting uses random output counts.
+            randomHarvestCount = true
+
+            # CN: 右键收获掉落 1 个产物的概率权重。默认分布为 58%。
+            # EN: Weight for dropping 1 item when right-click harvesting. Default distribution is 58%.
+            harvestCount1Weight = 58
+
+            # CN: 右键收获掉落 2 个产物的概率权重。默认分布为 30%。
+            # EN: Weight for dropping 2 items when right-click harvesting. Default distribution is 30%.
+            harvestCount2Weight = 30
+
+            # CN: 右键收获掉落 3 个产物的概率权重。默认分布为 10%。
+            # EN: Weight for dropping 3 items when right-click harvesting. Default distribution is 10%.
+            harvestCount3Weight = 10
+
+            # CN: 右键收获掉落 4 个产物的概率权重。默认分布为 2%。
+            # EN: Weight for dropping 4 items when right-click harvesting. Default distribution is 2%.
+            harvestCount4Weight = 2
             """;
 
     private static final String DEFAULT_FEIFEI_CONFIG = """

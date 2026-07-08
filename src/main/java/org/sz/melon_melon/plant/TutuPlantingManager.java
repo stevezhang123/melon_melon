@@ -59,6 +59,11 @@ public class TutuPlantingManager {
         WARNED_ITEM_IDS.clear();
         for (TutuPlantStage stage : TutuConfig.stages().values()) {
             for (String configuredItem : stage.itemIds()) {
+                if (configuredItem.endsWith(":*") && configuredItem.indexOf(':') == configuredItem.length() - 2) {
+                    addNamespaceWildcard(stage, configuredItem.substring(0, configuredItem.length() - 2));
+                    continue;
+                }
+
                 ResourceLocation configuredId = ResourceLocation.tryParse(configuredItem);
                 if (configuredId == null) {
                     warnOnce(configuredItem, "Invalid item id '{}' in plant stage '{}'", configuredItem, stage.id());
@@ -77,6 +82,26 @@ public class TutuPlantingManager {
 
         builtCache = true;
         Melon_melon.LOGGER.info("Resolved {} plantable item entries from configured stages", ITEM_TO_STAGES.size());
+    }
+
+    private static void addNamespaceWildcard(TutuPlantStage stage, String namespace) {
+        if (namespace.isBlank()) {
+            warnOnce(stage.id() + ":blank_namespace", "Ignored blank namespace wildcard in plant stage '{}'", stage.id());
+            return;
+        }
+
+        int matched = 0;
+        for (Map.Entry<?, Item> entry : BuiltInRegistries.ITEM.entrySet()) {
+            ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(entry.getValue());
+            if (itemId != null && itemId.getNamespace().equals(namespace)) {
+                ITEM_TO_STAGES.computeIfAbsent(entry.getValue(), ignored -> new ArrayList<>()).add(stage.id());
+                matched++;
+            }
+        }
+
+        if (matched == 0 && TutuConfig.debugLog()) {
+            Melon_melon.LOGGER.debug("Namespace wildcard '{}:*' in plant stage '{}' matched no loaded items", namespace, stage.id());
+        }
     }
 
     private static void ensureCache() {
