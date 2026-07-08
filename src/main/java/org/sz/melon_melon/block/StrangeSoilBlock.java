@@ -2,6 +2,7 @@ package org.sz.melon_melon.block;
 
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -9,10 +10,14 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -23,7 +28,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
+import org.sz.melon_melon.Melon_melon;
 import org.sz.melon_melon.block.entity.TutuSoilBlockEntity;
 import org.sz.melon_melon.config.TutuConfig;
 import org.sz.melon_melon.item.StrangeFertilizerItem;
@@ -68,6 +75,10 @@ public class StrangeSoilBlock extends FarmBlock implements EntityBlock {
             return handleHarvestOrNotMature(level, pos, player, soil);
         }
 
+        if (player.isShiftKeyDown() && TutuConfig.sneakBypassesPlanting()) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+
         if (stack.isEmpty()) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
@@ -75,10 +86,19 @@ public class StrangeSoilBlock extends FarmBlock implements EntityBlock {
         ServerPlayer serverPlayer = player instanceof ServerPlayer sp ? sp : null;
         TutuPlantingManager.PlantingResult result = TutuPlantingManager.canPlant(serverPlayer, stack);
         if (!result.allowed()) {
-            if (!level.isClientSide && !result.messageKey().isBlank()) {
-                player.displayClientMessage(Component.translatable(result.messageKey(), result.stageId()), true);
+            return handleCannotPlant(level, player, result);
+        }
+
+        if (!TutuConfig.preferPlantingOverPlacing()
+                && stack.getItem() instanceof BlockItem
+                && !TutuConfig.preventPlacementForPlantableItems()) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+
+        if (TutuConfig.preventPlacementForPlantableItems()) {
+            if (!level.isClientSide && TutuConfig.debugLog()) {
+                Melon_melon.LOGGER.debug("Planting {} into Tutu Soil before block placement can run", stack.getItem());
             }
-            return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
 
         if (!level.isClientSide) {
@@ -89,6 +109,22 @@ public class StrangeSoilBlock extends FarmBlock implements EntityBlock {
             level.levelEvent(2001, pos.above(), Block.getId(state));
         }
 
+        return ItemInteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    private ItemInteractionResult handleCannotPlant(Level level, Player player, TutuPlantingManager.PlantingResult result) {
+        if (TutuConfig.allowPlaceOnSoilWhenCannotPlant()) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+
+        if (!level.isClientSide) {
+            String messageKey = result.messageKey().isBlank() ? "message.melon_melon.plant.not_allowed" : result.messageKey();
+            if ("message.melon_melon.plant.stage_locked".equals(messageKey)) {
+                player.displayClientMessage(Component.translatable(result.messageKey(), result.stageId()), true);
+            } else {
+                player.displayClientMessage(Component.translatable(messageKey), true);
+            }
+        }
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
@@ -151,6 +187,35 @@ public class StrangeSoilBlock extends FarmBlock implements EntityBlock {
         }
     }
 
+    @Override
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (TutuConfig.allowDecayToVanillaDirt()) {
+            super.tick(state, level, pos, random);
+        }
+    }
+
+    @Override
+    public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
+        if (TutuConfig.allowDecayToVanillaDirt() && !TutuConfig.tramplingDriesOnly()) {
+            super.fallOn(level, state, pos, entity, fallDistance);
+            return;
+        }
+
+        if (!level.isClientSide && TutuConfig.tramplingAffectsMoisture()) {
+            BlockState currentState = level.getBlockState(pos);
+            if (currentState.is(this) && currentState.hasProperty(MOISTURE) && currentState.getValue(MOISTURE) > 0) {
+                level.setBlock(pos, currentState.setValue(MOISTURE, 0), Block.UPDATE_ALL);
+                level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(entity, currentState));
+            }
+
+            if (TutuConfig.tramplingBreaksPlant() && level.getBlockEntity(pos) instanceof TutuSoilBlockEntity soil && soil.hasPlant()) {
+                soil.clearPlant();
+            }
+        }
+
+        entity.causeFallDamage(fallDistance, 1.0F, entity.damageSources().fall());
+    }
+
     public static boolean isMoist(BlockState state) {
         return state.hasProperty(MOISTURE) && state.getValue(MOISTURE) > 0;
     }
@@ -167,8 +232,21 @@ public class StrangeSoilBlock extends FarmBlock implements EntityBlock {
 
     @Override
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        BlockState above = level.getBlockState(pos.above());
-        return !above.isSolid();
+        return !TutuConfig.allowDecayToVanillaDirt() || super.canSurvive(state, level, pos);
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return TutuConfig.allowDecayToVanillaDirt()
+                ? super.getStateForPlacement(context)
+                : this.defaultBlockState();
+    }
+
+    @Override
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos currentPos, BlockPos neighborPos) {
+        return TutuConfig.allowDecayToVanillaDirt()
+                ? super.updateShape(state, direction, neighborState, level, currentPos, neighborPos)
+                : state;
     }
 
     @Override

@@ -42,6 +42,10 @@ public class TutuSoilBlockEntity extends BlockEntity {
             return;
         }
 
+        if (TutuConfig.pauseGrowthWhenCovered() && !level.isEmptyBlock(pos.above())) {
+            return;
+        }
+
         soil.addGrowth(1.0F / TutuConfig.growthTicks());
     }
 

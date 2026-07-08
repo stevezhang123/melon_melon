@@ -10,8 +10,10 @@
   "message.melon_melon.feifei.disabled": "?Feifei? is currently disabled.",
   "message.melon_melon.feifei.success": "?Feifei? worked.",
   "message.melon_melon.plant.not_allowed": "This item cannot be planted on Tutu Soil",
+  "message.melon_melon.plant.cannot_place_here": "This item is planted into Tutu Soil first. Sneak-right-click to place it as a block.",
   "message.melon_melon.plant.stage_locked": "You have not unlocked the required planting stage: %s",
   "message.melon_melon.plant.not_mature": "It is not mature yet",
+  "message.melon_melon.soil.trampled": "The Tutu Soil dried out after being trampled.",
   "message.melon_melon.stage.unlocked": "Unlocked stage %2$s for %1$s",
   "message.melon_melon.stage.revoked": "Revoked stage %2$s for %1$s",
   "message.melon_melon.stage.list": "%s unlocked stages: %s"

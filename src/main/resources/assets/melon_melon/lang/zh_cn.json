@@ -10,8 +10,10 @@
   "message.melon_melon.feifei.disabled": "？肥肥？现在不能使用",
   "message.melon_melon.feifei.success": "？肥肥？生效了",
   "message.melon_melon.plant.not_allowed": "这个物品不能种在土土上",
+  "message.melon_melon.plant.cannot_place_here": "这个物品会被优先种进土土，若想放置方块请潜行右键",
   "message.melon_melon.plant.stage_locked": "你尚未解锁种植该物品所需的阶段：%s",
   "message.melon_melon.plant.not_mature": "还没有成熟",
+  "message.melon_melon.soil.trampled": "土土被踩干了",
   "message.melon_melon.stage.unlocked": "已为 %s 解锁阶段：%s",
   "message.melon_melon.stage.revoked": "已为 %s 撤销阶段：%s",
   "message.melon_melon.stage.list": "%s 已解锁阶段：%s"

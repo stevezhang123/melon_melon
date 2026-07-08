@@ -33,6 +33,9 @@ public class TutuPlantingManager {
         }
 
         if (!TutuConfig.enableWhitelist()) {
+            if (!TutuConfig.allowAnyItemWhenWhitelistDisabled()) {
+                return postEvent(player, stack, new PlantingResult(false, "", "message.melon_melon.plant.not_allowed", List.of()));
+            }
             return postEvent(player, stack, new PlantingResult(true, "unrestricted", "", List.of()));
         }
 
