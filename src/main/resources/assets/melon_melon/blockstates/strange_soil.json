@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "has_plant=false,moisture=0": {
+      "model": "melon_melon:block/strange_soil"
+    },
+    "has_plant=false,moisture=1": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=false,moisture=2": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=false,moisture=3": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=false,moisture=4": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=false,moisture=5": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=false,moisture=6": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=false,moisture=7": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=true,moisture=0": {
+      "model": "melon_melon:block/strange_soil"
+    },
+    "has_plant=true,moisture=1": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=true,moisture=2": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=true,moisture=3": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=true,moisture=4": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=true,moisture=5": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=true,moisture=6": {
+      "model": "melon_melon:block/strange_soil_moist"
+    },
+    "has_plant=true,moisture=7": {
+      "model": "melon_melon:block/strange_soil_moist"
+    }
+  }
+}

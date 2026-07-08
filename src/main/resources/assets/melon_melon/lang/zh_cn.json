@@ -1,0 +1,18 @@
+{
+  "block.melon_melon.strange_soil": "？土土？",
+  "block.melon_melon.tutu_soil": "？土土？",
+  "item.melon_melon.strange_soil": "？土土？",
+  "block.melon_melon.fruit_crop": "种瓜得瓜作物",
+  "item.melon_melon.strange_fertilizer": "？肥肥？",
+  "item.melon_melon.feifei": "？肥肥？",
+  "message.melon_melon.feifei.no_plant": "这里还没有种下东西",
+  "message.melon_melon.feifei.already_mature": "已经成熟了",
+  "message.melon_melon.feifei.disabled": "？肥肥？现在不能使用",
+  "message.melon_melon.feifei.success": "？肥肥？生效了",
+  "message.melon_melon.plant.not_allowed": "这个物品不能种在土土上",
+  "message.melon_melon.plant.stage_locked": "你尚未解锁种植该物品所需的阶段：%s",
+  "message.melon_melon.plant.not_mature": "还没有成熟",
+  "message.melon_melon.stage.unlocked": "已为 %s 解锁阶段：%s",
+  "message.melon_melon.stage.revoked": "已为 %s 撤销阶段：%s",
+  "message.melon_melon.stage.list": "%s 已解锁阶段：%s"
+}

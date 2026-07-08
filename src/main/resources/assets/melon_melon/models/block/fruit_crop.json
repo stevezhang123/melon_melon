@@ -1,0 +1,7 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "melon_melon:block/strange_soil_moist"
+  },
+  "elements": []
+}
