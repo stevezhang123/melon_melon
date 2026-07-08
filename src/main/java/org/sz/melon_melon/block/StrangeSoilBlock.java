@@ -66,13 +66,21 @@ public class StrangeSoilBlock extends FarmBlock implements EntityBlock {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        if (stack.is(ModItems.STRANGE_FERTILIZER.get())) {
-            StrangeFertilizerItem.applyToTutuSoil(level, pos, player, stack, soil);
-            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        if (soil.hasPlant() && soil.isMature()) {
+            return harvestPlant(level, pos, player, soil);
         }
 
         if (soil.hasPlant()) {
+            if (stack.is(ModItems.STRANGE_FERTILIZER.get())) {
+                StrangeFertilizerItem.applyToTutuSoil(level, pos, player, stack, soil);
+                return ItemInteractionResult.sidedSuccess(level.isClientSide);
+            }
             return handleHarvestOrNotMature(level, pos, player, soil);
+        }
+
+        if (stack.is(ModItems.STRANGE_FERTILIZER.get())) {
+            StrangeFertilizerItem.applyToTutuSoil(level, pos, player, stack, soil);
+            return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
 
         if (player.isShiftKeyDown() && TutuConfig.sneakBypassesPlanting()) {
@@ -146,10 +154,14 @@ public class StrangeSoilBlock extends FarmBlock implements EntityBlock {
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
 
+        return harvestPlant(level, pos, player, soil);
+    }
+
+    private static ItemInteractionResult harvestPlant(Level level, BlockPos pos, Player player, TutuSoilBlockEntity soil) {
         if (!level.isClientSide) {
             ItemStack drop = soil.getPlantedStack().copy();
             if (!drop.isEmpty()) {
-                drop.setCount(1);
+                drop.setCount(rollHarvestCount(level.random));
                 popResource(level, pos.above(), drop);
             }
             soil.resetAfterHarvest(level.getGameTime());
@@ -157,6 +169,37 @@ public class StrangeSoilBlock extends FarmBlock implements EntityBlock {
         }
 
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    private static int rollHarvestCount(RandomSource random) {
+        if (!TutuConfig.randomHarvestCount()) {
+            return 1;
+        }
+
+        int weight1 = TutuConfig.harvestCount1Weight();
+        int weight2 = TutuConfig.harvestCount2Weight();
+        int weight3 = TutuConfig.harvestCount3Weight();
+        int weight4 = TutuConfig.harvestCount4Weight();
+        int total = weight1 + weight2 + weight3 + weight4;
+        if (total <= 0) {
+            weight1 = 58;
+            weight2 = 30;
+            weight3 = 10;
+            weight4 = 2;
+            total = 100;
+        }
+
+        int roll = random.nextInt(total);
+        if (roll < weight1) {
+            return 1;
+        }
+        if (roll < weight1 + weight2) {
+            return 2;
+        }
+        if (roll < weight1 + weight2 + weight3) {
+            return 3;
+        }
+        return weight4 > 0 ? 4 : 3;
     }
 
     @Override

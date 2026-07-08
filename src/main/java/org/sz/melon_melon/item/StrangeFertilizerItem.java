@@ -58,8 +58,7 @@ public class StrangeFertilizerItem extends Item {
         }
 
         if (soil.isMature()) {
-            sendActionMessage(level, player, "message.melon_melon.feifei.already_mature");
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.PASS;
         }
 
         if (!level.isClientSide) {
