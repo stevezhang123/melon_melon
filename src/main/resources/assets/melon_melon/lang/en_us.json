@@ -1,9 +1,9 @@
 {
-  "block.melon_melon.strange_soil": "? Soil Soil ?",
+  "block.melon_melon.strange_soil": "?Tutu Soil?",
   "block.melon_melon.tutu_soil": "? Soil Soil ?",
-  "item.melon_melon.strange_soil": "? Soil Soil ?",
+  "item.melon_melon.strange_soil": "?Tutu Soil?",
   "block.melon_melon.fruit_crop": "Fruit Crop",
-  "item.melon_melon.strange_fertilizer": "? Fertilizer Fertilizer ?",
+  "item.melon_melon.strange_fertilizer": "?Feifei?",
   "item.melon_melon.feifei": "?Feifei?",
   "message.melon_melon.feifei.no_plant": "There is nothing planted here.",
   "message.melon_melon.feifei.already_mature": "The plant is already mature.",

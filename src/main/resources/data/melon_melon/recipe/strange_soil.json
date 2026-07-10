@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DFD",
+    "NGN",
+    "DBD"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "F": {
+      "item": "minecraft:fern"
+    },
+    "N": {
+      "item": "minecraft:netherrack"
+    },
+    "G": {
+      "item": "minecraft:gilded_blackstone"
+    },
+    "B": {
+      "item": "minecraft:dirt"
+    }
+  },
+  "result": {
+    "id": "melon_melon:strange_soil",
+    "count": 4
+  }
+}
